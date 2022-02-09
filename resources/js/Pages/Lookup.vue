@@ -64,6 +64,10 @@
               <h4 class="text-xl font-bold mb-2">{{ item.name }}</h4>
               <p class="mb-2 ml-2">{{ item.description }}</p>
               <span class="text-2xl font-bold">${{ item.price.replace('.00', '') }}</span>
+              <div v-if="item.input_option" class="flex flex-col my-4">
+                <label class="font-bold text-gray-600 mb-2" :for="'label-' + index">{{ item.input_label }}</label>
+                <input class="border-gray-300 rounded" :name="'label-' + index" type="text" v-model="item.user_input"/>
+              </div>
               <div v-if="item.multi" class="flex flex-col grow justify-end mt-4">
                 <label class="font-bold text-gray-600" :for="'qty-' + index">Qty</label>
                 <div class="flex flex-row">
@@ -71,11 +75,6 @@
                 </div>
               </div>
               <div v-else class="flex flex-col grow justify-end mt-4">
-                <div v-if="item.input_option" class="flex flex-col my-4">
-                  <label class="font-bold text-gray-600 mb-2" :for="'label-' + index">{{ item.input_label }}</label>
-                  <input class="border-gray-300 rounded" :name="'label-' + index" type="text" v-model="item.user_input"/>
-                </div>
-                <label class="font-bold text-gray-600" :for="'include-' + index"></label>
                 <div class="flex flex-row">
                   <input class="border-gray-300 rounded h-8 w-8" :name="'include-' + index" type="checkbox" v-model="item.selected"/>
                   <label class="font-bold text-gray-600 my-1 mx-4 w-full" :for="'include-' + index">Add to Order</label>
@@ -95,7 +94,11 @@
 
     <template #content>
       <p v-if="emptyOrder">You have no items in your order. Please add Packages, Sheets, or Items to your order.</p>
-      <p v-else>Please review your order for accuracy.<br/>You will be taken to Paypal upon confirmation to complete your order.</p>
+      <p v-else>
+        Please review your order for accuracy.<br/>
+        You will be taken to Paypal upon confirmation to complete your order.<br/>
+        In case your order needs to be shipped, please make sure your address is updated in Paypal.
+      </p>
       <ul v-if="!emptyOrder" class="my-4">
         <span v-if="orderedPackages.length > 0" class="text-lg font-bold">Packages</span>
         <li class="ml-0 md:ml-4" v-for="(pack, index) in orderedPackages" :key="index">
@@ -230,7 +233,7 @@
             if (this.sheetPrice > 0) {
               paypalData['item_name_' + paypalIndex] = 'Sheets: ' + this.sheetTypes.join(', ')
               paypalData['amount_' + paypalIndex] = this.sheetPrice
-              paypalData['quantity_' + paypalIndex] = this.sheetTypes.length
+              paypalData['quantity_' + paypalIndex] = 1
               paypalData['on0_' + paypalIndex] = 'Photo ID'
               paypalData['os0_' + paypalIndex] = this.photo_id
               paypalData['on1_' + paypalIndex] = 'Project ID'
