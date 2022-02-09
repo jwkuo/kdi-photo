@@ -111,7 +111,7 @@ class ProjectController extends Controller
                 $new_items->push(new Item([
                     'name' => $item['name'],
                     'price' => $item['price'],
-                    'description' => $item['description'],
+                    'description' => $item['description'] ?? '',
                     'multi' => $item['multi'],
                     'auto' => $item['auto'],
                     'input_option' => $item['input_option'],
@@ -121,7 +121,7 @@ class ProjectController extends Controller
                 $existing_item = $project->items->find($item['id']);
                 $existing_item->name = $item['name'];
                 $existing_item->price = $item['price'];
-                $existing_item->description = $item['description'];
+                $existing_item->description = $item['description'] ?? '';
                 $existing_item->multi = $item['multi'];
                 $existing_item->auto = $item['auto'];
                 $existing_item->input_option = $item['input_option'];

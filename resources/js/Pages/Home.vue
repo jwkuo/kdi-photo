@@ -22,7 +22,7 @@
   <div class="container mx-auto my-4">
     <div class="grid grid-cols-1 md:grid-cols-2">
       <div class="flex flex-col justify-center">
-        <img class="max-w-1/2" src="https://s3.amazonaws.com/kdi-photo/front-page/slide2.jpg">
+        <img class="max-w-1/2" src="https://s3.amazonaws.com/kdi-photo/front-page/featured-image.jpg">
       </div>
       <div class="flex flex-col justify-center content-center my-4">
         <div class="container content-center px-8">

@@ -16,7 +16,7 @@
       <div class="flex flex-col grow px-4">
         <form @submit.prevent="reviewingOrder = true" name="lookup">
           <h3 class="text-2xl font-bold mb-4">Packages</h3>
-          <ul class="flex flex-col md:flex-row mb-4">
+          <ul class="flex flex-col md:flex-row md:flex-wrap mb-4">
             <li v-for="(pack, index) in packages" :key="index" class="flex flex-col p-4 my-2 md:mr-4 border-2 border-gray-300 rounded w-full md:w-1/4">
               <h4 class="text-xl font-bold mb-2">{{ pack.name }}</h4>
               <p class="my-2">{{ pack.description }}</p>
@@ -29,14 +29,14 @@
               </div>
             </li>
           </ul>
-          <div class="flex flex-col md:flex-row mb-4">
+          <div v-if="project.sheet_prices.length > 0" class="flex flex-col md:flex-row mb-4">
             <h3 class="text-2xl font-bold py-4 mr-4">Sheets</h3>
             <div v-if="project.sheet_promo.length > 0" class="flex flex-row grow bg-gray-200 p-4 rounded">
               <span class="text-lg font-bold">{{ project.sheet_promo }}</span>
             </div>
           </div>
-          <p class="mb-4">Choose the quantity of sheets and then choose which sheet types to purchase</p>
-          <div class="flex flex-col md:flex-row">
+          <p v-if="project.sheet_prices.length > 0" class="mb-4">Choose the quantity of sheets and then choose which sheet types to purchase</p>
+          <div v-if="project.sheet_prices.length > 0" class="flex flex-col md:flex-row">
             <div class="flex flex-col mr-4 mb-4">
               <label class="font-bold text-gray-600" for="sheet-qty">Sheet Quantity</label>
               <select name="sheet-qty" class="border-gray-300 rounded w-64" v-model="selectedSheetQty">
@@ -59,7 +59,7 @@
             </div>
           </div>
           <h3 class="text-2xl font-bold py-4">Indvidual Items and Add Ons</h3>
-          <ul class="flex flex-col md:flex-row mb-4">
+          <ul class="flex flex-col md:flex-row md:flex-wrap mb-4">
             <li v-for="(item, index) in items" :key="index" class="flex flex-col p-4 my-2 md:mr-4 border-2 border-gray-300 rounded w-full md:w-1/4">
               <h4 class="text-xl font-bold mb-2">{{ item.name }}</h4>
               <p class="mb-2 ml-2">{{ item.description }}</p>
@@ -99,21 +99,22 @@
       <ul v-if="!emptyOrder" class="my-4">
         <span v-if="orderedPackages.length > 0" class="text-lg font-bold">Packages</span>
         <li class="ml-0 md:ml-4" v-for="(pack, index) in orderedPackages" :key="index">
-          <span>{{ pack.qty }}x</span> {{ pack.name }}
+          <span>{{ pack.qty }}x</span> {{ pack.name }} - ${{ (pack.price * pack.qty).toFixed(2) }}
         </li>
         <span v-if="selectedSheetQty > 0" class="text-lg font-bold">{{ selectedSheetQty }} Sheets</span>
         <li v-if="selectedSheetQty > 0" class="ml-0 md:ml-4">
-          {{ sheetTypes.join(', ') }}
+          {{ sheetTypes.join(', ') }} - ${{ sheetPrice }}
         </li>
         <span v-if="orderedItems.length > 0" class="text-lg font-bold">Items</span>
         <li class="ml-0 md:ml-4" v-for="(item, index) in orderedItems" :key="index">
-          {{ item.selected ? '1' : item.qty }}x {{ item.name }} {{ item.input_option ? '(' + item.user_input + ')' : ''}}
+          {{ item.selected ? '1' : item.qty }}x {{ item.name }} {{ item.input_option ? '(' + item.user_input + ')' : ''}} - ${{ (item.price * item.qty).toFixed(2) }}
         </li>
         <span v-if="autoItems.length > 0" class="text-lg font-bold">Additional Charges</span>
         <li class="ml-0 md:ml-4" v-for="(item, index) in autoItems" :key="index">
           {{ item.name }} - ${{ item.price }}
         </li>
       </ul>
+      <span class="text-lg font-bold">Total: ${{ orderTotal }}</span>
       <form id="paypal-form" ref="paypalform" action="https://www.paypal.com/cgi-bin/webscr" method="post">
         <input v-for="(param, key) in paypalParams" :key="key" type="hidden" :name="key" :value="param"/>
       </form>
@@ -190,13 +191,26 @@
             return this.packages.filter(pack => pack.qty > 0)
           },
           orderedItems: function () {
-            return this.items.filter(item => item.selected == true || item.qty > 0)
+            return this.items.filter(item => {
+              if(item.selected == true) {
+                item.qty = 1
+                return true
+              }
+              return item.qty > 0
+            })
           },
           autoItems: function () {
             return this.project.items.filter(item => item.auto)
           },
           emptyOrder: function () {
             return this.orderedPackages.length == 0 && this.orderedItems == 0 && this.selectedSheetQty == 0
+          },
+          sheetPrice: function () {
+            if (this.sheetTypes.length > 0) {
+              let sheetPriceList = this.project.sheet_prices.replace(/\$/g, '').replace(/, /g, ',').split(',')
+              return sheetPriceList[this.sheetTypes.length - 1]
+            }
+            return 0;
           },
           paypalParams: function () {
             let paypalIndex = 1
@@ -213,16 +227,16 @@
               paypalIndex += 1
             })
 
-            let sheetPriceList = this.project.sheet_prices.replace(/\$/g, '').replace(/, /g, ',').split(',')
-
-            paypalData['item_name_' + paypalIndex] = 'Sheets: ' + this.sheetTypes.join(', ')
-            paypalData['amount_' + paypalIndex] = sheetPriceList[this.sheetTypes.length - 1]
-            paypalData['quantity_' + paypalIndex] = this.sheetTypes.length
-            paypalData['on0_' + paypalIndex] = 'Photo ID'
-            paypalData['os0_' + paypalIndex] = this.photo_id
-            paypalData['on1_' + paypalIndex] = 'Project ID'
-            paypalData['os1_' + paypalIndex] = this.project.lookup_id
-            paypalIndex += 1
+            if (this.sheetPrice > 0) {
+              paypalData['item_name_' + paypalIndex] = 'Sheets: ' + this.sheetTypes.join(', ')
+              paypalData['amount_' + paypalIndex] = this.sheetPrice
+              paypalData['quantity_' + paypalIndex] = this.sheetTypes.length
+              paypalData['on0_' + paypalIndex] = 'Photo ID'
+              paypalData['os0_' + paypalIndex] = this.photo_id
+              paypalData['on1_' + paypalIndex] = 'Project ID'
+              paypalData['os1_' + paypalIndex] = this.project.lookup_id
+              paypalIndex += 1
+            }
 
             this.orderedItems.forEach(item => {
               paypalData['item_name_' + paypalIndex] = item.input_option ? item.name + ': ' + item.user_input : item.name
@@ -253,6 +267,22 @@
             paypalData['cancel_return'] = 'http://kdiphoto.com'
 
             return paypalData
+          },
+          orderTotal: function () {
+            let packages = this.orderedPackages.reduce((totalPrice, pack) => {
+              return totalPrice + (parseFloat(pack.price) * pack.qty)
+            }, 0)
+            let items = this.orderedItems.reduce((totalPrice, item) => {
+              return totalPrice + (parseFloat(item.price) * item.qty)
+            }, 0)
+            let grandTotal = parseFloat(packages) + parseFloat(this.sheetPrice) + parseFloat(items)
+            if (grandTotal > 0) {
+              let autoItems = this.autoItems.reduce((totalPrice, item) => {
+                return totalPrice + parseFloat(item.price)
+              }, 0)
+              grandTotal += parseFloat(autoItems)
+            }
+            return grandTotal.toFixed(2)
           }
         },
         watch: {
