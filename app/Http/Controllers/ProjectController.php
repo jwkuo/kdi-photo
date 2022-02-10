@@ -13,7 +13,7 @@ use Redirect;
 class ProjectController extends Controller
 {
     public function list (S3Client $client) {
-        $projects = Project::all();
+        $projects = Project::latest()->get();
         return Inertia::render('Admin/Projects', [
             'projects' => $projects
         ]);
@@ -99,7 +99,7 @@ class ProjectController extends Controller
         $submitted_items = collect($request->input('items'));
 
         foreach ($project->items as $item) {
-             if (!$submitted_items->contains('id', $package['id'])) {
+             if (!$submitted_items->contains('id', $item['id'])) {
                 $item->delete();
             }
         }
@@ -135,6 +135,48 @@ class ProjectController extends Controller
         $project->packages()->saveMany($new_packages);
 
         $project->items()->saveMany($new_items);
+
+        return Redirect::route('Projects');
+    }
+
+    public function duplicateProject(Request $request) {
+        $project = Project::find($request->input('project_id'));
+
+        $packages = $project->packages;
+
+        $items = $project->items;
+
+        $new_project = $project->replicate();
+
+        $new_project->save();
+
+        $new_packages = [];
+        foreach($packages as $pack) {
+            $new_packages[] = $pack->replicate();
+        }
+        $new_project->packages()->saveMany($new_packages);
+
+        $new_items = [];
+        foreach($items as $item) {
+            $new_items[] = $item->replicate();
+        }
+        $new_project->items()->saveMany($new_items);
+
+        return Redirect::to("/admin/projects/{$new_project->id}");
+    }
+
+    public function deleteProject(Request $request) {
+        $project = Project::find($request->input('project_id'));
+
+        foreach($project->packages as $package) {
+            $package->delete();
+        }
+
+        foreach($project->items as $item) {
+            $item->delete();
+        }
+
+        $project->delete();
 
         return Redirect::route('Projects');
     }

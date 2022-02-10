@@ -39,6 +39,8 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'verified'])->group(function
     Route::get('/projects', [ProjectController::class, 'list'])->name('Projects');
     Route::get('/projects/create', [ProjectController::class, 'create'])->name('CreateProject');
     Route::post('/projects/create', [ProjectController::class, 'createProject']);
+    Route::post('/projects/duplicate', [ProjectController::class, 'duplicateProject']);
+    Route::post('/projects/delete', [ProjectController::class, 'deleteProject']);
     Route::get('/projects/{id}', [ProjectController::class, 'editProject']);
     Route::post('/projects/{id}', [ProjectController::class, 'saveProject']);
 });

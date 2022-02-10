@@ -15,16 +15,28 @@
 
             <ul class="flex flex-wrap justify-center my-4">
               <li class="flex flex-col justify-center shadow-lg m-4 rounded border-b border-gray-200" v-for="(project, index) in projects" :key="index">
-                <Link :href="'/admin/projects/' + project.id">
                   <div class="flex justify-center mb-4">
-                    <img class="w-cover max-h-[50vh]" :src="project.featured_image">
+                    <Link :href="'/admin/projects/' + project.id"> 
+                      <img class="w-cover max-h-[25vh]" :src="project.featured_image">
+                    </Link>
                   </div>
-                  <div class="container mx-auto p-4">
-                    <h3 class="text-center text-2xl text-indigo-700 font-bold mb-4">{{ project.name }}</h3>
-                    <p><span class="font-bold">Lookup ID: </span>{{ project.lookup_id }}</p>
-                    <p><span class="font-bold">Directory: </span>{{ project.directory }}</p>
+                  <div class="container mx-auto text-center p-4">
+                    <Link class="text-2xl text-indigo-700 font-bold" :href="'/admin/projects/' + project.id">
+                      {{ project.name }}
+                    </Link>
+                    <div class="inline-block relative">
+                      <svg @click="toggleOptions(index)" class="inline-block ml-2 mb-2 cursor-pointer" width="20px" height="20px" fill="rgb(67, 56, 202)" stroke="rgb(67, 56, 202)" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0-6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>
+                      <div v-if="openedOptionMenu === index" class="absolute top-8 left-2">
+                        <ul class="bg-white drop-shadow text-left">
+                          <li @click="duplicateProject(index)" class="p-4 cursor-pointer hover:bg-gray-300">Duplicate</li>
+                          <hr/>
+                          <li @click="deleteProject(index)" class="p-4 cursor-pointer hover:bg-gray-300">Delete</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <p class="my-2"><span class="font-bold">Lookup ID: </span>{{ project.lookup_id }}</p>
+                    <p class="my-2"><span class="font-bold">Directory: </span>{{ project.directory }}</p>
                   </div>
-                </Link>
               </li>
             </ul>
         </div>
@@ -41,6 +53,27 @@
         },
         props: {
           projects: Object
+        },
+        data () {
+          return {
+            openedOptionMenu: false
+          }
+        },
+        methods: {
+          toggleOptions: function (index) {
+            this.openedOptionMenu = this.openedOptionMenu !== index ? index : false
+          },
+          duplicateProject: function(index) {
+            this.$inertia.post('/admin/projects/duplicate', {
+              project_id: this.projects[index].id
+            })
+          },
+          deleteProject: function(index) {
+            this.$inertia.post('/admin/projects/delete', {
+              project_id: this.projects[index].id
+            })
+            this.openedOptionMenu = false
+          }
         }
     })
 </script>
