@@ -25,7 +25,7 @@
                       {{ project.name }}
                     </Link>
                     <div class="inline-block relative">
-                      <svg @click="toggleOptions(index)" class="inline-block ml-2 mb-2 cursor-pointer" width="20px" height="20px" fill="rgb(67, 56, 202)" stroke="rgb(67, 56, 202)" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0-6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>
+                      <svg @click="toggleOptions(index)" :id="'menu-' + index" class="inline-block ml-2 mb-2 cursor-pointer" width="20px" height="20px" fill="rgb(67, 56, 202)" stroke="rgb(67, 56, 202)" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0-6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>
                       <div v-if="openedOptionMenu === index" class="absolute top-8 left-2">
                         <ul class="bg-white drop-shadow text-left">
                           <li @click="duplicateProject(index)" class="p-4 cursor-pointer hover:bg-gray-300">Duplicate</li>
@@ -63,6 +63,11 @@
           toggleOptions: function (index) {
             this.openedOptionMenu = this.openedOptionMenu !== index ? index : false
           },
+          clickAway: function (event) {
+            if (event.target.id !== 'menu-' + this.openedOptionMenu && event.target.parentElement.id !== 'menu-' + this.openedOptionMenu) {
+              this.openedOptionMenu = false
+            }
+          },
           duplicateProject: function(index) {
             this.$inertia.post('/admin/projects/duplicate', {
               project_id: this.projects[index].id
@@ -74,6 +79,12 @@
             })
             this.openedOptionMenu = false
           }
+        },
+        created: function() {
+          window.addEventListener('click',this.clickAway)
+        },
+        destroyed: function() {
+          window.removeEventListener('click', this.clickAway)
         }
     })
 </script>
