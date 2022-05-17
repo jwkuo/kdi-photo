@@ -29,8 +29,23 @@
               </div>
             </li>
           </ul>
-          <div v-if="project.sheet_prices.length > 0" class="flex flex-col md:flex-row mb-4">
-            <h3 class="text-2xl font-bold py-4 mr-4">Sheets</h3>
+          <h3 class="text-2xl font-bold mb-4">Package Sheet Choices</h3>
+          <ul v-if="orderedPackages.length > 0" class="flex flex-col md:flex-row mb-4">
+            <li v-for="(pack, index) in orderedPackages" :key="index" class="flex flex-col mr-4 mb-4">
+              <h4 class="text-xl font-bold mb-2">{{ pack.name }}</h4>
+              <div v-for="(sheetType, key) in orderedPackageSheetTypes[pack.id]" :key="key" class="flex flex-row">
+                <label class="text-gray-600 mt-2 mr-4" :for="'sheet-' + key">Sheet {{ key + 1 }}</label>
+                <select class="border-gray-300 rounded w-64 mb-4" :name="'sheet-' + key" v-model="orderedPackageSheetTypes[pack.id][key]">
+                  <option v-for="(sheetOption, index) in sheetOptions" :key="index" :value="sheetOption">
+                    {{ sheetOption }}
+                  </option>
+                </select>
+              </div>
+            </li>
+          </ul>
+          <p v-else class="mb-4">Select a package to choose your sheets.</p>
+          <div class="flex flex-col md:flex-row mb-4">
+            <h3 class="text-2xl font-bold py-4 mr-4">Individual Sheets</h3>
             <div v-if="project.sheet_promo.length > 0" class="flex flex-row grow bg-gray-200 p-4 rounded">
               <span class="text-lg font-bold">{{ project.sheet_promo }}</span>
             </div>
@@ -161,6 +176,7 @@
               pack.qty = 0
               return pack
             }),
+            orderedPackageSheetTypes: {},
             items: this.project.items.filter(item => item.auto == false).map(item => {
               item.qty = 0
               item.selected = false
@@ -220,7 +236,7 @@
             let paypalData = {}
 
             this.orderedPackages.forEach(pack => {
-              paypalData['item_name_' + paypalIndex] = pack.name
+              paypalData['item_name_' + paypalIndex] = pack.name + ' Sheets: ' + this.orderedPackageSheetTypes[pack.id].join(', ')
               paypalData['amount_' + paypalIndex] = pack.price
               paypalData['quantity_' + paypalIndex] = pack.qty
               paypalData['on0_' + paypalIndex] = 'Photo ID'
@@ -294,6 +310,19 @@
             for(let i=0; i < newQty; i++) {
               this.sheetTypes.push(this.sheetOptions[0])
             }
+          },
+          packages: {
+            handler(newPackages) {
+              newPackages.forEach((pack, index) => {
+                this.orderedPackageSheetTypes[pack.id] = []
+                if (pack.qty > 0) {
+                  for(let i=0; i < (pack.qty * pack.sheet_options); i++) {
+                    this.orderedPackageSheetTypes[pack.id].push(this.sheetOptions[0])
+                  }
+                }
+              })
+            },
+            deep: true
           }
         },
         methods: {

@@ -87,7 +87,7 @@ class ProjectController extends Controller
             } else {
                 $pack = $project->packages->find($package['id']);
                 $pack->name = $package['name'];
-                $pack->description = $package['description'];
+                $pack->description = $package['description'] ?? '';
                 $pack->price = $package['price'];
                 $pack->sheet_options = $package['sheet_options'];
                 $pack->save();
