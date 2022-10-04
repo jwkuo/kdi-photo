@@ -46,7 +46,7 @@
                             <p class="my-2">A package is a collection of sheets for a special price. You can set an amount of sheet choices the customer can choose for him or herself.</p>
                         </div>
                         <ul class="flex flex-col">
-                            <div class="flex flex-col md:flex-row" v-for="(pack, index) in form.packages" :key="index">
+                            <div class="flex flex-col md:flex-row md:flex-wrap md:mb-8" v-for="(pack, index) in form.packages" :key="index">
                                 <li class="flex flex-col mb-4 mr-4">
                                     <label class="font-bold text-gray-600 mb-2" for="package-name">Package Name</label>
                                     <input class="border-gray-300 rounded" name="package-name" type="text" v-model="pack.name"/>
@@ -66,6 +66,12 @@
                                     <label class="font-bold text-gray-600 mb-2" for="sheet-options">Sheet Choices</label>
                                     <input class="border-gray-300 rounded w-32" name="sheet-options" type="number" v-model="pack.sheet_options"/>
                                     <p class="text-sm text-red-400" v-if="errors.sheet_options">{{ errors.sheet_options }}</p>
+                                </li>
+                                <li class="flex flex-col mb-4 mr-4">
+                                    <label class="font-bold text-gray-600" for="input-label">Input Label</label>
+                                    <span class="text-gray-400 mb-2">Optional. An empty value will not request an input.</span>
+                                    <input class="border-gray-300 rounded" name="input-label" type="text" v-model="pack.input_label"/>
+                                    <p class="text-sm text-red-400" v-if="errors.input_label">{{ errors.input_label }}</p>
                                 </li>
                                 <li class="flex flex-col justify-end mb-4 mr-4">
                                     <button class="rounded-full bg-gray-200 px-4 py-2 mx-4 text-gray-600 font-bold" type="button" @click.stop="removePackage(index)">Delete Package</button>

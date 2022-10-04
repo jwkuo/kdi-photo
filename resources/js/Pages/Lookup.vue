@@ -33,6 +33,10 @@
           <ul v-if="orderedPackages.length > 0" class="flex flex-col md:flex-row mb-4">
             <li v-for="(pack, index) in orderedPackages" :key="index" class="flex flex-col mr-4 mb-4">
               <h4 class="text-xl font-bold mb-2">{{ pack.name }}</h4>
+              <div v-if="pack.input_label != ''" class="flex flex-row mb-4">
+                <label class="text-gray-600 mt-2 mr-4" :for="'input-' + index">{{ pack.input_label }}</label>
+                <input class="border-gray-300 rounded" :name="'input-' + index" type="text" v-model="pack.input"/>
+              </div>
               <div v-for="(sheetType, key) in orderedPackageSheetTypes[pack.id]" :key="key" class="flex flex-row">
                 <label class="text-gray-600 mt-2 mr-4" :for="'sheet-' + key">Sheet {{ key + 1 }}</label>
                 <select class="border-gray-300 rounded w-64 mb-4" :name="'sheet-' + key" v-model="orderedPackageSheetTypes[pack.id][key]">
@@ -97,7 +101,10 @@
               </div>
             </li>
           </ul>
-          <button class="rounded-full bg-gray-200 px-8 py-4 text-gray-600 font-bold" type="submit">Review Order</button>
+          <div class="flex-auto flex-col">
+            <button class="rounded-full bg-gray-200 px-8 py-4 text-gray-600 font-bold disabled:text-gray-300 disabled:bg-gray-100 grow-0" :disabled="missingPackageInput" type="submit">Review Order</button>
+            <span v-if="missingPackageInput" class="text-gray-400 block my-2">Please provide a value for package choices.</span>
+          </div>
         </form>
       </div>
     </div>
@@ -117,7 +124,7 @@
       <ul v-if="!emptyOrder" class="my-4">
         <span v-if="orderedPackages.length > 0" class="text-lg font-bold">Packages</span>
         <li class="ml-0 md:ml-4" v-for="(pack, index) in orderedPackages" :key="index">
-          <span>{{ pack.qty }}x</span> {{ pack.name }} - ${{ (pack.price * pack.qty).toFixed(2) }}
+          <span>{{ pack.qty }}x</span> {{ pack.name }} {{ pack.input_label }}{{ pack.input_label != '' ? ':' : '' }} {{ pack.input }} - ${{ (pack.price * pack.qty).toFixed(2) }}
         </li>
         <span v-if="selectedSheetQty > 0" class="text-lg font-bold">{{ selectedSheetQty }} Sheets</span>
         <li v-if="selectedSheetQty > 0" class="ml-0 md:ml-4">
@@ -174,6 +181,7 @@
             sheetTypes: [],
             packages: this.project.packages.map(pack => {
               pack.qty = 0
+              pack.input = ''
               return pack
             }),
             orderedPackageSheetTypes: {},
@@ -209,6 +217,9 @@
           orderedPackages: function () {
             return this.packages.filter(pack => pack.qty > 0)
           },
+          missingPackageInput: function () {
+            return this.orderedPackages.filter(pack => pack.input_label !== '' && pack.input == '').length > 0
+          },
           orderedItems: function () {
             return this.items.filter(item => {
               if(item.selected == true) {
@@ -236,7 +247,11 @@
             let paypalData = {}
 
             this.orderedPackages.forEach(pack => {
-              paypalData['item_name_' + paypalIndex] = pack.name + ' Sheets: ' + this.orderedPackageSheetTypes[pack.id].join(', ')
+              let optionalInput = ''
+              if (pack.input_label != '') {
+                optionalInput = ' ' + pack.input_label + ': ' + pack.input
+              }
+              paypalData['item_name_' + paypalIndex] = pack.name + optionalInput + ' Sheets: ' + this.orderedPackageSheetTypes[pack.id].join(', ')
               paypalData['amount_' + paypalIndex] = pack.price
               paypalData['quantity_' + paypalIndex] = pack.qty
               paypalData['on0_' + paypalIndex] = 'Photo ID'

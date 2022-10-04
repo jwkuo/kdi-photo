@@ -82,7 +82,8 @@ class ProjectController extends Controller
                     'name' => $package['name'],
                     'description' => $package['description'],
                     'price' => $package['price'],
-                    'sheet_options' => $package['sheet_options']
+                    'sheet_options' => $package['sheet_options'],
+                    'input_label' => $package['input_label'] ?? ''
                 ]));
             } else {
                 $pack = $project->packages->find($package['id']);
@@ -90,6 +91,7 @@ class ProjectController extends Controller
                 $pack->description = $package['description'] ?? '';
                 $pack->price = $package['price'];
                 $pack->sheet_options = $package['sheet_options'];
+                $pack->input_label = $package['input_label'] ?? '';
                 $pack->save();
             }
         }

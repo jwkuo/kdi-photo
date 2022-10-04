@@ -14,7 +14,7 @@ class Package extends Model
 	 *
 	 * @var array
 	 */
-	protected $fillable = ['name', 'description', 'price', 'sheet_options'];
+	protected $fillable = ['name', 'description', 'price', 'sheet_options', 'input_label'];
 
     function project() {
 		return $this->belongsTo('App\Models\Project');
