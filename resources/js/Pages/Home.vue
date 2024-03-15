@@ -7,14 +7,14 @@
       <span class="text-lg font-bold">502-724-5429 | <a class="text-blue-500" href="mailto:kdiphoto@yahoo.com">kdiphoto@yahoo.com</a></span>
     </div>
   </div>
-  <div class="bg-purple-500">
+  <div class="bg-[#33c4b5]">
     <div class="container mx-auto text-center">
-      <a class="inline justify-center md:flex" rel="external" target="_blank" href="https://kdicreations.myshopify.com">
-        <div class="flex flex-col justify-center mx-4">
-          <h3 class="text-2xl text-white font-bold">Don't Just Give a Store Bought Gift.<br>Personalize It with KDI-Creations!</h3>
-        </div>
-        <div class="">
-          <img class ="inline-block max-w-[300px]" src="/kdic.jpg" alt="Looking for KDI Creations">
+      <a class="inline justify-center md:flex" rel="external" target="_blank" href="https://www.etsy.com/shop/ShopKDIcreations">
+        <div class="flex flex-col justify-center mx-4 md:flex-row md:items-center">
+          <div class="">
+            <img class ="inline-block max-w-[250px]" src="/kdic-logo.png" alt="Shop KDI Creations">
+          </div>
+          <h3 class="text-xl font-bold">Check out our Etsy Store for all kinds of Personalized Items!</h3>
         </div>
       </a>
     </div>
