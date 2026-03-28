@@ -1,0 +1,1 @@
+import{E as e,N as t,R as n,g as r,h as i,n as a}from"./app-CmFoIHfE.js";var o={__name:`AuthenticationCardLogo`,setup(o){return(o,s)=>(e(),r(n(a),{href:`/`},{default:t(()=>[...s[0]||=[i(`img`,{class:`block w-auto`,src:`/kdi-logo.png`,alt:`KDI Photo`},null,-1)]]),_:1}))}};export{o as t};
