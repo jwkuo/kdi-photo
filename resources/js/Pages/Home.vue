@@ -64,7 +64,7 @@
 
 <script>
     import { defineComponent } from 'vue'
-    import { Head } from '@inertiajs/inertia-vue3';
+    import { Head } from '@inertiajs/vue3';
 import Button from '../Jetstream/Button.vue';
 
     export default defineComponent({

@@ -18,7 +18,7 @@
 
 <script>
   import { defineComponent } from 'vue'
-  import { Link } from '@inertiajs/inertia-vue3'
+  import { Link } from '@inertiajs/vue3'
   import AppLayout from '@/Layouts/AppLayout.vue'
   import ProjectsList from '@/Admin/ProjectsList.vue'
 

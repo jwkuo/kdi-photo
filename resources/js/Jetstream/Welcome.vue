@@ -96,7 +96,7 @@
 <script>
     import { defineComponent } from 'vue'
     import JetApplicationLogo from '@/Jetstream/ApplicationLogo.vue'
-    import { Link } from '@inertiajs/inertia-vue3';
+    import { Link } from '@inertiajs/vue3';
 
     export default defineComponent({
         components: {
